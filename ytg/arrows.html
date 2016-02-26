@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang='en-us'>
+<head>
+<meta charset="utf-8">
+<title>You Have a Keyboard</title>
+<!-- Author: Bryce Bidwell. (C) 2015 -->
+<style>
+*, *:before, *:after { box-sizing: border-box; }
+
+body {
+	height:100%;
+	width:100%;
+	margin:0;
+	padding:0;
+	background-color:#663399; /* rgba(102,51,153,1); */
+	font-family:"Segoe UI", "Myriad Pro", Tahoma;
+}
+div#container {
+	height:100%;
+	width:100%;
+	margin:0 auto;
+}
+div.console {
+	font-size:large;
+	background-color:#002222; 	/*Greenish black*/
+	color:#00FF00; 				/*Bright console green*/
+	font-family:"Lucida Console", Monaco, monospace;
+	height:80%;
+	width:80%;
+	display:block;
+	padding:2em;
+	border:5px solid #006600;
+	border-radius:1em;
+	margin:0 auto;
+	position:fixed;
+	left:10%; top:5%;
+	z-index:1;
+}
+div.console#coverup { 
+	z-index:2; 
+	border-color:rgba(102,51,153,1);
+	border:none;
+	background-color:rgba(102,51,153,1);
+	text-align:center;
+	vertical-align:middle;
+	color:#EBFFB4; /*Pale blue*/
+	font-family:"Segoe UI", "Myriad Pro", Tahoma;
+}
+
+#uArrEnd1, #uArrEnd2, #uArrEnd3, #dArrEnd, #lArrEnd, #rArrEnd, #bluePillEnd { 
+visibility:hidden; 
+cursor:pointer; 
+}
+#dArrEnd, #lArrEnd, #rArrEnd, #uArrEnd4, #bluePillEnd {cursor:default;}
+
+span#want-to-continue { white-space:nowrap; color: inherit; position:relative; } 
+span#bluepillouter { white-space:nowrap; position:relative; }
+span.bluepillinner { font-weight:bold; color:rgba(51,153,255,1);}
+
+.bold { font-weight:bold; }
+.lite { color:#000028; }	/* Blue black - for lite bg*/
+.dark { color:#C8FFFF; } 	/* Pale blue  - for dark bg*/
+.middle { vertical-align:middle; }
+.center { text-align:center; }
+.emphasis { font-size: x-large; font-weight: bold; }
+.monospace { font-family:"Lucida Console", Monaco, monospace; }
+.x-large { font-size:x-large; }
+
+/*Make eye in triangle with characters*/
+.trianglefix,.eyeballfixdn1,.eyeballfixdn2,.eyballfixup1,.eyeballfixup2 { font-weight:normal; position:relative; }
+span.eyeballfixdn1 { position:relative; left:.4em; top:.35em; }
+span.eyeballfixdn2 { position:relative; top:-.07em; }
+span.eyeballfixup1 { position:relative; left:.4em; top:.57em; }
+span.eyeballfixup2 { position:relative; top:-.07em; }
+
+/* a+b tag special styling */
+a { text-decoration:underline; }
+a, b, a:hover { font-weight:inherit; }	
+a:hover { cursor:pointer; }
+a.liteA { 			color: #6464FF; 	/*Dark lilac*/
+} a.liteA:hover { 	color: #9393F0;		/*Medium lilac*/
+} a.liteA b { 		color: #001EAA;		/*Deep blue */
+} a.liteA:hover b { color: #0030FF;		/*Bright blue comp*/
+}
+a.darkA { 			color: #FF5505;		/*Red-orange*/
+} a.darkA:hover { 	color: #FF884B;		/*Desat orange*/
+} a.darkA b { 		color: #FFDD4D; 	/*Low sat orange*/
+} a.darkA:hover b { color: #FFFF64;		/*Yellow*/
+}
+/*** NEED SPECIAL STYLE CLASSES FOR LINKS, THE END MARKERS -- font change for THE END? smallcaps, google fonts, etc?***/
+
+</style>
+
+<link rel="stylesheet" href='js/jquery-ui-1.11.4.custom/jquery-ui.min.css'>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<!--<script src="js/color/jquery.color-2.1.2.min.js"></script> Basic color support plugin from the jQuery Foundation at https://github.com/jquery/jquery-color, allows the .animate() method to handle colors -->
+<script src='js/textfill/jquery.textfill.min.js'></script><!-- http://jquery-textfill.github.io/ -- boosts text size to fit element -->
+<script src="js/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+<script>
+
+var count = 0;
+var keyIn;
+var backTransIncr = 0.0;
+var keys 		= { LAR: 37, UAR:38, RAR:39, DAR:40, ESC: 27, RET: 13, SPC: 32 } //Maps keycodes
+var inComputer 	= false,
+	retPressed	= false,
+	escPressed	= false;
+var presses	= 12; 		// !!!!IMPORTANT: Number of keypresses required to transition
+var	uar = 0, dar = 0, lar = 0, rar = 0; //Initial press index (varies by +/-presses)
+var uEnd = false, dEnd = false, lEnd = false, rEnd = false, aEnd = false; //aEnd = any arrow end
+
+//Presently unused. These will be used to throw exclusivity flags for near-end states
+var uEnd1 = false, dEnd1 = false, lEnd1 = false, rEnd1 = false,
+	uNear = false, dNear = false, lNear = false, rNear = false;
+
+$(document).ready(function() {
+	//Cleanup and prepare document
+	$('[id^=uArrEnd], #dArrEnd, #lArrEnd, #rArrEnd, #bluePillEnd').hide().css('visibility','visible');
+	$('a').addClass('darkA');
+	$("div[id$=End]").textfill(10,100);
+	//On any keypress:
+	$(document).keydown(function(e) {
+		revelation();				
+		keyIn = e.keyCode;
+		
+		//**BEGIN RET KEYPRESS**
+		if (keyIn == keys.RET && !(inComputer || aEnd)) {
+			retPressed = true; // Throw flag if RET pressed once allowing you to ESC
+			var bgArr = toRGBArray($('#coverup').css('background-color'));
+			
+			//$('#coverup,#bluePillEnd,').removeClass('dark').addClass('lite'); 				
+				//$('#coverup,#bluePillEnd').removeClass('lite').addClass('dark');
+			
+			// Increment background transparency at accelerating rate
+			backTransIncr 	+= .005;
+			bgArr[3] 		-= backTransIncr;
+			if (bgArr[3] <= 0)	{
+				inComputer = true;
+				$('#coverup').hide();
+			} else {
+				var bgNew = toRGBA(bgArr);//Decrease opacity of coverup border, background
+				$('#coverup').css({ 'background-color':	bgNew });
+			}
+			
+			if (backTransIncr == .08)  {
+				$('#want-to-continue').animate({
+					color: 		'rgba(255,90,45,1)', //change to orange-red
+					fontSize: 	'1.1em',
+					top: 		'0.5em'}, 1200);
+				$('#bluepillouter').animate({
+					fontSize: 	'1.25em', 
+					top: 		'1.5em'}, 1200);
+			}
+			//note: .delay([delay in ms])will delay between animations
+			if (inComputer) alert("SCORE");
+		
+		//**END RET, BEGIN ESC KEYPRESS**
+		} else if (keyIn == keys.ESC && retPressed && !aEnd) {
+			escPressed = true; //throw flag
+			$('#computer').contents().filter(function(){ return this.nodeType == 1; }).remove(); // Wipes text first for visual cleanness
+			$('#computer').hide(500).delay(1200);
+			$('#bluePillEnd').show(700);
+
+		//**END ESC, BEGIN ARROW KEYPRESS**
+		} else if (keyIn == keys.UAR || keyIn == keys.DAR || keyIn == keys.LAR || keyIn == keys.RAR) {
+			var bgArr 	= toRGBArray($('#coverup').css('background-color'));
+			var shiftTo;
+			var now;
+			
+			//If no ending conditions have been met previously, use this logic to smoothly transition between colors
+			if (!aEnd) switch(keyIn) {
+					case keys.UAR: now = ++uar; dar--; 
+						uEnd = (uar == presses);
+						shiftTo = [150,250,250,1.0];	break; // Successful sky blue	
+					case keys.DAR: now = ++dar; uar--; 
+						dEnd = (dar == presses);
+						shiftTo = [55,30,0,1.0];		break; // Dirt brown
+					case keys.LAR: now = ++lar; rar--;
+						lEnd = (lar == presses); 
+						shiftTo = [255,80,50,1.0];		break; // Ominous red
+					case keys.RAR: now = ++rar; lar--;
+						rEnd = (rar == presses);
+						shiftTo = [130,255,100,1.0];	break; // Approachable green		
+				}
+			// Stop changing background and throw flag if any arrow end reached and no other ending has been reached. If another ending has been reached, allow background to change freely
+		
+			if (uEnd || dEnd || lEnd || rEnd)	aEnd = true; 
+			if ((escPressed || inComputer) && aEnd) {
+				now = 0;
+				shiftTo = [Math.floor(Math.random()*255),Math.floor(Math.random()*255), Math.floor(Math.random()*255),1.0]
+				aEnd = false;
+			}
+			
+			if(!aEnd) {
+				for (var i=0; i < shiftTo.length - 1; i++) // Use length - 1 to ignore opacity
+					bgArr[i] += Math.floor( (shiftTo[i] - bgArr[i]) / (presses - now) );
+				var bgCoverNew 	= toRGBA(bgArr);
+				bgArr[3] = 1.0; // Fix body opacity at full;
+				var bgBodyNew 	= toRGBA(bgArr);
+				$('body').css({
+					'background-color': bgBodyNew });
+				$('#coverup').css({
+					'background-color': bgCoverNew });
+					
+				//Correct background by applying light/dark theme	
+				if (bright(bgArr)) {	$('a').removeClass('darkA').addClass('liteA');
+					$('div').removeClass('dark').addClass('lite') 
+				} else { $('a').removeClass('liteA').addClass('darkA');
+					$('div').removeClass('lite').addClass('dark');	
+				}
+			}
+		}
+	}); //***END KEYDOWN***
+	
+	
+	//Feed this function a string containing a bg color, such as in var bgc = $('#whatever').css('background-color');
+	// and it will return an array containing the RGBA values needed to build a css color specifier.
+	function toRGBArray(bgColor) {
+		var bgArray = bgColor.split(',');
+		//If no A value found, push '1.0)' onto array
+		if (bgArray.length < 4) 
+			bgArray.push('1.0)');
+		for (var i = 0; i < 3; i++)  
+			bgArray[i] = parseInt(bgArray[i].match(/(\d+)/));
+		bgArray[3] = parseFloat(bgArray[3].match(/^(.*)\)$/));
+	
+		return bgArray;
+	}
+	// This function builds a color string as rgba(###, ###, ###, #.#) from an array of RGBA values - to supplement the above
+	function toRGBA(bgArray) { return 'rgba(' + bgArray.toString() + ')'; }
+	
+	// This function takes an element and determines whether the background is more bright than dark. If so, it returns true. Algorithm from https://github.com/jamiebrittain/colourBrightness.js.
+	function bright(bgArray) {
+		var brightness = (bgArray[0] * 299 + bgArray[1] * 587 + bgArray[2] * 114) / 1000;
+		if (brightness >= 125) return true;
+		else return false;
+	}
+	
+	//This function reveals end condition elements
+	function revelation() {
+		if (aEnd && !(inComputer || escPressed)) {
+			$('#computer').hide();	
+			if (uEnd && !uEnd1) {
+					
+				$("div[id$=End]").textfill(10,100);
+				var bgArr = toRGBArray($('#coverup').css('background-color'));
+				$('#uArrEnd1').fadeIn(4000);
+				$('#coverup, body').animate(
+					{'backgroundColor': '#1600AA'}, 
+					{duration:4000, queue: true});
+				$('#coverup,body').animate(
+					{'backgroundColor': '#200020'}, 
+					{duration:4000, queue: true});
+				var darkColor = 'rgb(220, 220, 150)' // Bright yellow
+				$('#uArrEnd1 a').fadeTo(2000,.1).fadeTo(6000,1);
+				$('#uArrEnd1').animate(
+					{'color': darkColor}, 
+					{duration:8000, queue: false});
+				$('a').addClass('darkA');
+				//END FIRST uEnd ID
+				$('div[id^=uArrEnd]').addClass('dark');
+				
+				//These nested one click statements are no good. Having trouble with event handling
+				
+				$(document).one('click', function() {
+					$('#uArrEnd1').stop().fadeOut(400);
+					$('#uArrEnd2').delay(500).fadeIn(500);
+					$(document).one('click', function() {
+						$('#uArrEnd2').fadeOut(400).hide(0);
+						$('#uArrEnd3').delay(400).fadeIn(500);
+						$(document).one('click', function() {
+							$('#uArrEnd3').fadeOut(400).hide(0);
+							$('#uArrEnd4').delay(400).fadeIn(500);
+				});	});	});	
+				uEnd1 = true;			
+			}
+			
+			if (dEnd) {
+				$('#dArrEnd').fadeIn(3000);
+			}
+			if (lEnd) {
+				$('#lArrEnd').fadeIn(3000);
+			}
+			if (rEnd) {
+				$('#rArrEnd').fadeIn(3000);
+			}
+		}
+	}
+});
+
+</script>
+
+</head>
+
+<body>
+<div class="console" id='computer'>
+	<div id='computer0'>
+		<p>You are entering the computer.</p>
+		<p>
+			<span id='want-to-continue'>Do you really want to continue?</span> 
+			<br />
+			<span id='bluepillouter'>(<span class=bold>ESC</span> to take the <span class='bluepillinner'>Blue Pill</span>)</span>
+		</p>
+	</div>
+	<div id='computer1'>
+		<p class='x-large center'>&copy; 1991 &sect; Cyberdyne Systems</p>
+		<p>Watch this space . . . ;</p>
+	</div>
+</div>
+
+<div class='console lite' id='coverup'>
+	<div id='uArrEnd1'>
+		<p class='x-large'><span class='emphasis'>Congratulations!</span> You reached escape velocity!</p>
+		<p>You have finally achieved your dream of no longer being restrained by the oppressive confines of Earth's gravity. You see fleeting flashes of a stunning <a target='_blank' href='http://en.wikipedia.org/wiki/Aurora'><b>auroral</b></a> light show as you sail through the <a target='_blank' href='http://en.wikipedia.org/wiki/Ionosphere'><b>ionosphere</b></a> and joyfully burst through the <a target='_blank' href='http://en.wikipedia.org/wiki/Thermopause'><b>thermopause</b></a>.</p> 
+		<p>Although you are rapidly overcome by the harsh enviornment of space, your last conscious moments are filled with an overwhelming feeling of confidence and liberation.</p> 
+		<p class='x-large'>You are finally free&hellip;</span></p> 
+	</div>
+	<div id='uArrEnd2'>
+		<p> Unfortunately, you chose to leave when the Earth was rotated about <a target='_blank' href='http://www.marspedia.org/index.php?title=Lagrangian_point#Positions_of_the_Lagrangian_points'><b>60&deg;</b></a>  away from the sun. Your body slowly loses momentum and comes to its final resting place at the stable L<sub>4</sub> <a target='_blank' href='http://en.wikipedia.org/wiki/Lagrangian_point'><b>Lagrangian point</b></a>. 
+		<br /><span class='bold'>You are trapped in place by the Sun&ndash;Earth gravity well.</span></p>
+		<!-- 9651 is white up-facing triangle, 784 and 850 are the candrabindu and fermata combining forms, together they look like an eyeball -->
+		<p>In 2055, the team constructing the
+		<br />
+		<span class='emphasis'>
+			<span class='trianglefix'><span class='eyeballfixup1'>&nbsp;&#784;<span class='eyeballfixup2'>&#850;</span></span>&#9651;</span>
+			&nbsp;One World&nbsp;
+			<span class='trianglefix'><span class='eyeballfixdn1'>&nbsp;&#784;<span class='eyeballfixdn2'>&#850;</span></span>&#9661;</span>
+			&nbsp;Space Station&nbsp;
+			<span class='trianglefix'><span class='eyeballfixup1'>&nbsp;&#784;<span class='eyeballfixup2'>&#850;</span></span>&#9651;</span>
+		</span>
+		<br />
+		discovers your radiation-seared body. Rather than deal with the paperwork, they build your body into an exterior bulkhead, where you remain floating long after all trace of the human race has disappeared.</p>
+	</div>
+	<div id='uArrEnd3'>
+		<p>When the fusion reaction at the Sun's core <a target='_blank' href='https://web.archive.org/web/20141007094508/http://exitmundi.nl/Sunburn.htm'><b>fully collapses</b></a> circa <a target='_blank' href='http://mnras.oxfordjournals.org/content/386/1/155/T1.expansion.html'><b>7.59 billion years</b></a> later and the Sun explodes to 256&times; its current radius, the decaying remains of the 			<span class='trianglefix'><span class='eyeballfixup1'>&nbsp;&#784;<span class='eyeballfixup2'>&#850;</span></span>&#9651;</span>
+			 One World 
+			<span class='trianglefix'><span class='eyeballfixdn1'>&nbsp;&#784;<span class='eyeballfixdn2'>&#850;</span></span>&#9661;</span>
+			 Space Station
+			<span class='trianglefix'><span class='eyeballfixup1'>&nbsp;&#784;<span class='eyeballfixup2'>&#850;</span></span>&#9651;</span> 
+			are blasted into the dessicated hellscape once known as Earth before being devoured by the growing red giant Sun.</p>
+			
+			<p>The Sun's fusion reaction soon runs down to a dull roar, turning it into a <a target='_blank' href='http://en.wikipedia.org/wiki/Graphical_timeline_from_Big_Bang_to_Heat_Death'><b>white dwarf</b></a>. Within several trillion years, the Sun has faded to black after exhausting its fuel entirely. <span class='bold'>You remain trapped by the aggregate stellar body's gravity</span>.</p> 
+		</div>
+		<div id='uArrEnd4'>
+			<p><a target='_blank' href='http://en.wikipedia.org/wiki/Graphical_timeline_from_Big_Bang_to_Heat_Death'><b>In 100 trillion years</b></a>, give or take, the Stelliferous Era comes to an end as the universe has become <a target='_blank' href='http://en.wikipedia.org/wiki/Future_of_an_expanding_universe#Degenerate_Era'><b>degenerate</b></a>: a void populated by dead, disorganized, increasingly massive stellar bodies. The Sun, along with any matter that was once part of your body, is swallowed by a black hole 10<sup>33</sup> years later.</p>
+			<p>It turns out that <a target='_blank' href='http://en.wikipedia.org/wiki/Proton_decay'><b>protons do not decay</b></a>. 10<sup>100</sup> years ago, you were comforted by the idea that when all stellar bodies dissolved, the protons of your body would finally be free of Earth's oppressive gravity, and would then decay into photons that would travel to all corners of the darkened universe. <span class='bold'>This never happens.</span></p> 
+			By 10<sup>1500</sup> CE, all stellar bodies have collapsed into fully inert <a target='_blank' href='http://en.wikipedia.org/wiki/Iron_star'><b>hunks of iron</b></a>. The entropy of the universe approaches zero and time itself <a target='_blank' href='http://en.wikipedia.org/wiki/Entropy_(arrow_of_time)'><b>ceases to meaningfully exist</b></a>.
+			<p class='emphasis'>You are dead, having never escaped the Earth's gravity.</p>
+			<p class='x-large'>Wouldn't you rather have stayed on the ground? <a href='javascript:history.go(0)'><b class ='emphasis'>Try again.</b></a></p>
+	</div>
+	<div id='dArrEnd'>
+		<p>You have buried yourself in a hole too deep to get out of.</p>
+		<p class='emphasis'>The only way out is down.</p>
+		<p>You continue to dig until you strike a piece of solid metal. <span class='bold'>It's a door!</span> It turns out that the science fiction writers were right &ndash; the Earth really is <a target='_blank' href='http://en.wikipedia.org/wiki/Hollow_Earth'><b>hollow</b></a>!</p>
+		<p>	You'll never know what <a target='_blank' href= 'http://en.wikipedia.org/wiki/A_Strange_Manuscript_Found_in_a_Copper_Cylinder'><b>might have</b></a> happened next, because at that very moment, the door explodes open, blasting out millions of gallons of the primary waste products of the civilization at the center of the earth: <a target='_blank' href='http://en.wikipedia.org/wiki/Petroleum'><b>petroleum</b></a> and <a target='_blank' href='http://en.wikipedia.org/wiki/Waste_heat'><b>heat</b></a>.</p>
+		<p class='bold'>You are cooked to a sticky crisp.</p>
+
+		<p class='emphasis center'>You have died. <a href='javascript:history.go(0)'><b>Try again?</b></a></p>
+
+	</div>
+	<div id='lArrEnd'>
+		<p class='x-large'><span class='bold'>A tip for the future</span>: <br />ominous red isn't usually a color you want to run towards.</p>
+		<p>You go left, and left, and go left some more. You keep heading in a more-or-less lefterly direction until you hit the outskirts of Derweze, Turkmenistan. You go left a few more times and fall directly into the <a target='_blank' href='http://en.wikipedia.org/wiki/Door_to_Hell'><b>Door to Hell</b></a>.</p> 
+		<p class ='x-large'>You are <a target='_blank' href='http://upload.wikimedia.org/wikipedia/commons/thumb/6/65/The_Door_toHell.jpg/1280px-The_Door_to_Hell.jpg'><b>toast</b></a>.</p>
+		<p class='emphasis center'>You have died. <a href='javascript:history.go(0)'><b>Try again?</b></a></p>
+	</div>
+	
+	<div id='rArrEnd'>
+		<p class='x-large'>And a voice calls out &mdash;<br /><span class='emphasis bold'>Go right, young lad or lass, and achieve your destiny!</span></p>
+		<p>You've obviously played a lot of video games. Or maybe you picked up the March 2015  issue of <i>Perception</i> and checked out the recent study titled: <br /><a target='blank' href='http://www.perceptionweb.com/abstract.cgi?id=/p7897'><b><i>Depicting visual motion in still images: Forward leaning and a left to right bias for lateral movement</i></b></a>.</p> 
+		<p>For whatever reason you chose right, you chose, um, right.</p> 
+		<p> Your reward, if you can really call it one, is winning the minigame. But how much fun is that?</p>
+		<p class='emphasis center'>You have "succeeded." Yawn. <a href='javascript:history.go(0)'><b>Try again?</b></a></p>
+	</div>
+	
+	<div id='bluePillEnd'>
+		<p class='monospace'>You took the <span class='bluepillinner'>blue pill</span> and chose to remain a slave of the machines.</p> 
+		<p>You spend the rest of your life staring at tiny glowing screens and eventually die a broken and withered husk of a human from "<a target="_blank" href=http://text-neck.com/><b>text neck</b></a>" complications.</p>
+		
+		<p class='emphasis'>You have died. <a href='javascript:history.go(0)'><b>Try again?</b></a></p>
+	</div>
+
+</div>
+
+</body>
+</html>

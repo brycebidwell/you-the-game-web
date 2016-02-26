@@ -1,0 +1,33 @@
+// ctx.clearRect(0,0,widthOfImage,heightOfWindow - heightOfImage) //for adding sky
+
+//NOTE: cvs.scrollHeight is the actual r endered height, cvs.height is the nominal height	
+	
+	var ch = cvs.scrollHeight;
+	var cw = cvs.scrollWidth;
+	var wh = window.outerHeight;
+	var ww = window.outerWidth;
+	
+	cvs2 = document.getElementById("cvs2");
+	ctx2 = cvs2.getContext("2d");
+
+	ctx2.fillStyle		='black'
+	cvs2.style.width	= ww + 'px';
+	cvs2.style.height	= wh - ch + 'px';
+	alert(cvs2.scrollHeight);
+	ctx2.fillRect (0, 0, cvs2.width, cvs2.height)
+	
+	
+<a target='_blank' href=''><b></b></a> 
+	
+	
+	var anArray 	= [
+/*1*/	"",
+/*2*/	"",
+/*3*/	"",
+/*4*/	"",
+/*5*/	"",
+/*6*/	"",
+/*7*/	"",
+/*8*/	"",
+/*9*/	""
+	];

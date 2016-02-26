@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+
+<title>Quiz Your Life!</title>
+<!-- Author: Bryce Bidwell. (C) 2015 -->
+<link href='http://fonts.googleapis.com/css?family=Crafty+Girls|Bonbon' rel='stylesheet' type='text/css'> <!--|Droid+Sans+Mono  - good monospace font -->
+
+<style>
+::selection, ::-moz-selection, ::-webkit-selection { background:transparent; }
+body {
+	font-family:"Segoe UI", Tahoma, Arial, sans-serif;
+	background-color:#FFEAF2;
+	margin:0; padding:0; width:100%;
+}
+
+a {
+font-weight:inherit;
+color: #FF66FF;
+text-decoration: underline;
+}
+a:hover {
+color: #66CCFF;
+text-decoration: underline;
+cursor:pointer;
+}
+a b { color: #990066;
+	font-weight:inherit;}
+a:hover b { color: #CC99CC; 
+	font-weight:inherit;}
+
+div#container {
+	width:80%;
+	margin:0 auto;
+	padding:1em;
+	background-color:#rgba(56,47,50,.3);	
+}
+div.choice-button {
+	display:block;
+	color:white;
+	background-color:#333333;
+	font-size:medium;
+	font-weight:bold;
+	padding:0.4em;
+	border-radius:1em;
+	border:inset rgba(204,204,204,.7);
+	margin:0 .4em;
+	margin-bottom:.7em;
+	width:14em;
+	text-align:center;
+}
+div.choice-button:hover{
+	background-color:#BBBBBB;
+	color:black;
+	cursor:pointer;
+	transition:all .3s ease-in-out;
+}
+div.choice-bar {
+	display:table;
+	display:flex;
+	flex-flow:row wrap;
+	justify-content:space-around;
+}
+
+div#reveal04-bar {
+	justify-content:center;
+}
+.girl {
+	font-family:'Crafty Girls', 'Segoe Print', cursive;
+	font-size:x-large;
+}
+.bonbon { 
+	font-family:'Bonbon', 'Segoe Print', cursive;
+	font-size:xx-large;
+	vertical-align:middle;
+	}
+.rainbow {
+	font-size:xx-large;
+	font-family:'Bonbon', 'Segoe Print', cursive;
+	vertical-align:middle;
+	font-weight:500;
+}
+.rainbow#intheworld {}
+.rainbow#furiously {}
+.rainbow#quizyourlife {font-size:44px; margin:0 auto; padding:0;}
+div.rope-border {
+	background-image:url(img/Rope-tile.png);
+	background-repeat:repeat-x;
+	background-size:contain;
+	height:50px;
+	width:0;
+	overflow:hidden;
+	position:relative; left:-12.5%;
+}
+
+div#quiz-wrapper {
+	text-align:center;
+}
+
+input[type=text] {
+	background-color:#320032;
+	color:#FFDDFF;
+	font-size:x-large;
+	text-align:right;
+	vertical-align:bottom;
+	border:3px inset #DD31AD;
+}
+
+#guess {
+	border: solid .5px #666666;
+	border-radius: 20px 2px 20px 2px ;
+	-webkit-box-shadow: inset 2px 2px 7px rgba(179,20,123,0.7);
+	-moz-box-shadow: inset 2px 2px 7px rgba(179,20,123,0.7);
+	box-shadow: inset 2px 2px 7px rgba(179,20,123,0.7);
+	font-size: x-large;
+	font-family:'Crafty Girls', 'Segoe Print', cursive;
+	font-weight:bold;
+	color: #21022b;
+	padding: 2px 16px;
+	background: #ab28a9;
+	background: -moz-linear-gradient(bottom, #ab28a9 0%, #c483c4 50%, #ffdbfe 100%);
+	background: -webkit-linear-gradient(bottom, #ab28a9 0%, #c483c4 50%, #ffdbfe 100%);
+	background: -o-linear-gradient(bottom, #ab28a9 0%, #c483c4 50%, #ffdbfe 100%);
+	background: linear-gradient(bottom, #ab28a9 0%, #c483c4 50%, #ffdbfe 100%);
+	margin-left:.5em;
+	cursor:pointer;
+}
+#guess:hover {
+	color:#FFDDFF;
+	background: #ab28a9;
+	transition:all .6s ease-out;
+}
+
+.bold { font-weight:bold; }
+.italic { font-style:italic; }
+.underlined { text-decoration:underline; }
+.smallcaps { font-variant:small-caps; }
+.center { text-align:center; }
+.xx-large { font-size:xx-large; }
+.emphasis { font-weight:bold; color:#FF00CC; }
+
+/*Colors:
+Bubblegum pink:	#FCB2EB
+VS dull pink:	#FCD9E5
+VS desat pink:	#FFEAF2
+VS near black: 	#382F32
+VS rose pink:	#F1396D
+Deep pink-red:	#F60069
+Intense fuscia:	#FF41A1
+Med rose pink:	#FF90AB
+*/
+</style>
+
+<script type= "text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> 
+<script src="js/color/jquery.color-2.1.2.min.js"></script>
+<script src="js/rainbow/rainbow.js"></script><!-- Rainbow text plugin - HUGE pain, the version on Github was thoroughly broken and killed the rest of my script -->
+<script>
+
+$(document).ready(function(){
+	$('#furiously').rainbow({ 
+		colors: [
+			'#382F32',	//near black
+			'#6850BF',	//Purple-indigo lilac
+			'#8F1148', 	//Reddish-plum
+			'#F1396D',	//Rich pink red
+		],
+		animate: true,
+		animateInterval: 100,
+		pad: false,
+		pauseLength: 100,
+	});
+	$('#intheworld').rainbow({ 
+		colors: [
+			'#382F32',	//near black
+			'#F3214E',	//Bright red, touch of pink
+			'#6850BF',	//Purple-indigo lilac
+			'#8F1148', 	//Reddish-plum
+			'#F1396D',	//Rich pink red
+			'#F93189',	//Dark fuscia
+			'#F2116C'
+		],
+		animate: true,
+		animateInterval: 100,
+		pad: false,
+		pauseLength: 100,
+	});
+		$('#quizyourlife').rainbow({ 
+		colors: [
+			'#382F32',	//near black
+			'#F1396D',	//Rich pink red
+		],
+		animate: true,
+		animateInterval: 800,
+		pad: false,
+		pauseLength: 0,
+	});
+	
+});
+
+$(document).ready(function() {
+	
+	$('[id^=reveal]:not(#reveal00),#quizyourlife').hide(); // Hide all other divs
+	troub = document.getElementById('audio-trouble')
+//The following parses the choice-button id names (as cbnn-mm, where nn is the source and mm is the target) and hides/shows ids algorithmically
+	$('[id^=cb]').click(function() {
+		var $showID = '#reveal' + this.id.slice(-2);
+		var $hideID = '#reveal' + this.id.slice(-5,-3);
+		$($showID).slideDown(350);
+		$($hideID).slideUp(350);	
+	});
+	
+	$('#cb00-01').click(function() {
+		$('.rope-border').animate({	'width': '125%'	}, 1500);
+	});
+	$('[id^=cb01-]').click(function() {
+		$('.rope-border').animate({	'width': '0%'	}, 100);
+	});
+	
+	$('[id^=cbc2-]').click(function() {
+		$('#reveal04').delay(350).slideDown(250);
+	});
+	
+	$('[id$=-a4],[id$=-b4],[id$=-c4],[id$=-04]').click(function() {
+		$('#reveal04-bar').show();
+		$('#quizyourlife').delay(300).show();
+	});
+	$('[id$=-05]').click(function() {
+		$('#reveal04-bar').hide();
+		$('#quizyourlife').show().animate({
+			'font-size':'72px',
+			'position':'absolute', 
+			'left':'0', 'right':'0', 'top':'0'},1400); 
+		troub.volume = .50;
+		troub.play();
+	})
+});
+
+function ifLowVolume() {
+	if (troub.volume <= .1) {
+		var troubout = document.getElementById("taylout");
+		troubout.innerHTML = "<p class='girl xx-large bold center'>HOW DARE YOU TURN DOWN TAYLOR!</p>";
+		if(!troub.muted) troub.volume = 1;
+	}
+}
+//Init counters below first index value
+var tsFalseCount = -1;
+var tsTrueCount	 = -1;
+var tsTry = 0; 			// Counter for iterative regex testing
+// Ordinal fix. License: https://gist.github.com/furf/986113
+function ord(a){return["th","st","nd","rd"][(a=~~(a<0?-a:a)%100)>10&&a<14||(a%=10)>3?0:a]}
+
+var tsr = [ //ts regex array
+	/^Taylor Swift$/i,									// 0 - Taylor Swift
+	/^T[-. *]?Swift$/i,									// 1 - T-Swift
+	/^[A-Z .-]*[-. ]?Swift[y]|(?:ie)[-. ]?[A-Z .-]*$/i,	// 2 - Swifty [and variants]
+	/^[A-Z .-]*[-. ]?Swif[ft]er[-. ]?[A-Z .-]*$/i,		// 3 - Swiffer/Swifter (and variants)		
+	/^Tay[- *]?(?:Tay)?$/i,									// 4 - Tay, Tay-Tay
+	/^T?[- .*]?(?:Swiz[z]?(?:y|le|ie|ey)?)(?:[- ][A-Z .-]*)?$/i,// 5 - T-Swiz, T-Swizzle, T-Swizzy, Swizzie,Swizzle Sticks, etc.
+	/^22|(?:twenty[- ]two)$/,							// 6 - 22
+	/^(?:Tater|Tayter|T)[-. ](?:Tot[s]?)?$/i,			// 7 - Tayter Tot  [ Tater || Tayter (Tot(s)) ]
+	/^Dead[- ]?Tooth$/i,								// 8 - Dead Tooth
+	/^\s*$/,											// 9 - "blank space"
+];
+
+var tsrec = []; // Record of all responses -- push false for all initial vals
+	for (var i = 0; i < tsr.length; i++) tsrec.push(false);
+
+//Calculates Taylor Swift's current age based on the present time [Date.now()]
+var tsage = ( new Date( Date.now() - new Date(1989, 12, 13)) ).getFullYear() - 1970;
+var tsy = [ // ts yes - output strings for success
+/*0*/"Yes, that is her name.",
+/*1*/"You must be a fan!",
+/*2*/"90s kids know there's only one <a target='_blank' href='http://rap.wikia.com/wiki/Swift'><b>Swifty</b></a>.<br /><br /> I've heard he's a big fan of <a target='_blank' href='http://genius.com/2250430/D12-purple-hills/Hatch-back'><b>\"rolling hills\"</b></a>. <br /> <br /> <img src='http://fc02.deviantart.net/fs71/f/2011/079/1/c/purple_hills_by_beth25491white-d3c42a6.jpg' alt='Purple hills.' />",
+/*3*/"She really needs to work on her branding. <br /><br /><img src='img/swiffer_edit.jpg' alt='Swiffer product line.' />",
+/*4*/"No punishment is too severe for you, but as a start, <i>Tay</i> will be the first and, for years, the only syllable your (next) child will know how to say.",
+/*5*/"<div class='emphasis'>I'M LIKE 8'4\"<br>BLOND HAIR TO THE FLOOR <br /><br /><iframe src='https://player.vimeo.com/video/6648485?autoplay=1&byline=0&portrait=0' width='854' height='480' frameborder='0' webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>",
+/*6*/"You know, she was almost 23 when <a target='_blank' href='http://youtu.be/AgFeZr5ptV8?t=55s'><b>that song came out&hellip;</b></a><br /><br />At <b>" + tsage +"</b>, Tayter isn't such a Tot anymore.",
+/*7*/"Hungry? Me too.",
+/*8*/"Either you're really that much of a superfan or you're cheating.<br /><br />FYI, a chipped tooth isn't the same as a dead tooth, but you probably aren't the brightest star in the sky if you're getting dental advice from Swizzle Stix.",
+/*9*/"<a target='_blank' href='http://youtu.be/e-ORhEE9VVg?t=1m23s'><b>You had a blank space, baby, but you didn't write a name.</b></a><br /><br />That'll only work once."
+];
+var tsn =[ // ts no - array of failure strings
+/*0*/"<br /> <br /> <span class='emphasis'>That's strike 1!</span>",
+/*1*/"<br /> <br /> <span class='emphasis'>That's strike 2!</span>",
+/*2*/"<br /> <br /> <span class='emphasis'>That's strike 3&hellip; </span><br />and you<br />are<br /><span class='bonbon'>soOoOoOoO</span><br />done!"
+]
+
+function swiftname(guess) {
+	var taylin	= guess.nickname.value.trim();
+	var teval	= swiftest(taylin);
+	var taylout = tsn[tsFalseCount];
+	if (teval == -2)
+		taylout = "Coming up with repeat guesses already on only your "+ tsTry + ord(tsTry) + " attempt?<br /> <br /> <span class='bonbon xx-large'>Try again.</span>";
+	else if (teval >= 0)
+		taylout = tsy[teval];
+
+	if	(tsFalseCount == tsn.length) window.location = 'index.html';
+
+	var d = document.getElementById("taylout");
+	d.innerHTML = (taylout);
+	return false;
+}
+function swiftest(taylin) {
+	tsTry++;
+	for (var i=0; i < tsr.length; i++)
+		if(tsr[i].test(taylin)){
+			if(tsrec[i]) {
+				tsTry--;
+				return -2;
+			} else {		
+				tsrec[i] = true;
+				tsTrueCount++;
+				return i;
+			}
+		}
+	tsFalseCount++;
+	return -1; // if no valid answers
+}
+
+</script>
+
+</head>
+
+<body>
+
+<div id='container'>
+
+<div id="reveal00">
+	<p>Clearing the cobwebs from your eyes, you find yourself in an unfamiliar, bright pink bedroom. Your fingers dangle off the edge of the undersized bed. Posters of an unknown teen idol in confusing outfits cover the walls.</p> 
+	<p>A pock-marked teen girl sits across from you in an understuffed bean bag,</p> 
+	<p class='center'><span class="rainbow" id='furiously'>furiously texting.</span></p>
+	<br />
+	<div class="choice-bar">
+		<div class="choice-button" id='cb00-01'>"Where am I?"</div>
+	</div>
+</div>
+
+<div id="reveal01">
+	<div class="rope-border">&nbsp;</div>
+	
+	<p class='girl center'><span class='bonbon'>" O M G</span> you are <span class='bonbon'>literally</span> finally awake right now! <span class='bonbon'>"</span></p>
+	<p>You start reconsidering whether it was a good idea to get her attention as you realize your arms and legs are restrained by an intricate web of silk rope, with skill befitting a bona fide <a class='bold italic' target='_blank' href='http://en.wikipedia.org/wiki/Hoj%C5%8Djutsu'> <b>Hoj&#333;jutsu</b></a> master.</p>
+	
+	<div class="rope-border">&nbsp;</div>
+	<br />	
+	<div class="choice-bar">
+		<div class="choice-button" id='cb01-a2'>Struggle to get free.</div> 
+		<div class="choice-button" id='cb01-b2'>Struggle harder to get free.</div> 
+		<div class="choice-button" id='cb01-c2'>Sob softly.</div>
+	</div>
+</div>
+<div id="reveala2">
+	<p class='girl center'>" That is S&nbsp;o&nbsp;O&nbsp;0&nbsp;O&nbsp;o&nbsp;O&nbsp;0&nbsp;O&nbsp;o cute! " </p>
+	
+	<p>You try to free yourself to no avail. The only thing you manage to do is pull a muscle in your back.</p>
+	
+	<p>This is not going well. Better try groveling.</p>
+	<br />
+	<div class='choice-bar'>	
+		<div class="choice-button" id='cba2-c2'>Good idea.</div>
+	</div>	
+</div>
+
+<div id="revealb2">
+	<p class='girl center'><span class='bonbon'>" W&nbsp;h&nbsp;a&nbsp;a&nbsp;a&nbsp;t&nbsp;!&nbsp;? </span> &nbsp;Are you being serious right now ? <span class='bonbon'>"</span></p>
+	
+	<p>With frightening speed, the girl yanks on a single loop in the web of cord, tightening the rope around your wrists and chest.</p>
+	
+	<p>This is not going well. Better try groveling.</p>
+	<br />
+	<div class='choice-bar'>	
+		<div class="choice-button" id='cbb2-c2'>Okay.</div>
+	</div>
+	
+</div>
+
+<div id="revealc2">
+
+	<p class='girl center'><span class='bonbon'>" A&nbsp;W&nbsp;W&nbsp;W&nbsp;W&nbsp;!</span> &nbsp;That's so sad! <span class='bonbon'>"</span> </p>
+
+	<p>Yes! You're playing her heartstrings like a tambourine. (Those have strings, right? You're not much of a musician.)</p> 
+	<p>With more brains than boldness and having lost any shred of personal dignity long ago, you sob a little louder.</p>
+
+	<p class='girl center'><span class='bonbon'>"</span> You really want to be free, don't you? <span class='bonbon'>"</span> </p>
+	<div class="choice-bar">
+		<div class="choice-button" id='cbc2-a4'>"Yep."</div> 
+		<div class="choice-button" id='cbc2-b4'>"Nope."</div> 
+		<div class="choice-button" id='cbc2-c4'>Sob harder.</div>
+	</div>
+</div>
+
+
+<!-- The song in this div is the cover of Taylor Swift's "I Knew You Were Trouble" by Thai artist Billy Chuchat ft. Preen. Available for free at http://www.mediafire.com/listen/8870lzuk4x0524r/Billy+Chuchat+ft.+Preen+-+I+Knew+You+Were+Trouble.mp3 and on http://youtu.be/qGmv0-YEV1s .
+
+All songs &copy;  their original artists and reproduced here for non-commercial purposes only. Find Billy and Preen at
+http://twitter.com/BILLbilly01
+and
+https://twitter.com/preenp_ 
+respectively. Don't DMCA me. --> 
+<div id="reveal04">
+	<div id="reveala4"><p class='girl center'><span class='bonbon'>"</span> I thought we were friends. <span class='bonbon'>* pout * </span> Well, you're in luck. <span class='bonbon'>"</span></p></div>
+	
+	<div id="revealb4"><p class='girl center'><span class='bonbon'>"</span> Oh, sure you do! And you're in luck. <span class='bonbon'>"</span></p></div>
+	
+	<div id="revealc4"><p class='girl center'><span class='bonbon'>"&nbsp;</span>This is getting pretty <span class='bonbon'>&nbsp;p&nbsp;a&nbsp;t&nbsp;h&nbsp;e&nbsp;t&nbsp;i&nbsp;c&nbsp;</span> with a capital <span class='bonbon'>P ! </span> I'll tell you what.<span class='bonbon'>&nbsp;"</span></p></div>
+	
+	<p class='girl center'>
+	<span class='bonbon'>"&nbsp;</span>All you have to do is win at the greatest game <span class='bonbon'>E&nbsp;V&nbsp;E&nbsp;R&nbsp;<span class='girl'>~</span>&nbsp;"</span> </p>	
+
+</div>
+	<div class='rainbow center' id='quizyourlife'>~ Quiz Your Life ~</div>
+<br />
+<div class='choice-bar' id='reveal04-bar'>	
+	<br />
+
+	<div class="choice-button" id='cb04-05'>"Um&hellip;"</div>
+</div>
+
+<div id="reveal05">
+	<p class='girl center'><span class='bonbon'>"</span> What is one of the many nicknames of the very best musical artist <span class='rainbow' id='intheworld'>in the world</span> ? <span class='bonbon'>"</span></p>
+	<p>Your captor takes a deep breath, opens her mouth and, with surprisingly high production value and a seemingly invisible backup singer, begins to belt out a tune: </p>
+	<div id='quiz-wrapper'>
+		<audio id="audio-trouble" controls loop onVolumeChange="ifLowVolume();" preload="auto">  
+			<source src="audio/Billy_Chuchat_-_I_Knew_You_Were_Trouble_192.mp3" type="audio/mpeg" />  
+			<!--<source src="" type="audio/wav" />
+			<source src="" type="audio/ogg" />  -->
+			How are you even viewing this webpage if you don't support audio?
+		</audio> 
+		<br />
+		<br />
+		<form name="guessform" id='guessform' method="post" onsubmit="return swiftname(this);">
+			<input type="text" id="nickname" autofocus/>  
+			<input type="submit" id="guess" value="Guess!" />
+		</form>
+		<br />
+	</div>
+	<br />
+	<div class='girl center' id="taylout">
+	&nbsp;
+	</div>
+</div>
+
+</div>
+</body>
+</html>

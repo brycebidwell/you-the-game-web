@@ -1,0 +1,273 @@
+<!DOCTYPE html> 
+<html lang='en-us'>   
+<head>
+<meta charset="utf-8">
+<title>Flowers</title>
+<!-- Author: Bryce Bidwell. (C) 2015 -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<style>
+* { box-sizing:border-box; }
+::selection, ::-moz-selection, ::-webkit-selection { background:transparent; }
+html, body, #container{
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+	overflow: hidden; /*  Disable scrollbars */
+	display: block;  /* No floating content on sides */
+	font-family:"Segoe UI", Tahoma, Arial, sans-serif;
+	background-color:#FAFAFA;
+}
+
+canvas#cvs1 {
+	margin:0 auto;
+	width:100%;	
+}
+
+div#intro {
+	width:80%;
+	margin:0 auto;
+	font-size:large;
+	margin-top:5em;;
+}
+div#intro2 {
+	position:fixed;
+	top:1em;
+	left:5em;
+	text-align:left;
+	font-size:large;
+}
+
+div#cvs-div {
+	width:100%;
+	margin:0 auto;
+	text-align:center;
+}
+div#bottomPad {
+	background-color:black;
+	height:100%;
+	display:table;
+	position:relative;
+	top:-9%;
+	z-index:2;
+	color:white;
+	text-size:normal;
+	vertical-align:top;
+	margin:0 auto;
+}
+div#bottomPad p {
+	margin-top:0;
+	margin-bottom:.4em;
+	margin-left:.5em;
+	margin-right:.5em;
+}
+div#cvsAndPad {
+	position:fixed;
+	left:0;
+	top:0;
+	width:100%;
+	height:100%;
+	margin:0 auto;
+	text-align:center;
+}
+div.choice-button {
+	display:table;
+	color:white;
+	background-color:#333333;
+	font-size:large;
+	font-weight:bold;
+	padding:0.3em;
+	border-radius:1em;
+	border:inset rgba(204,204,204,.7);
+	margin:0 .4em;
+	margin-bottom:.7em;
+	width:11em;
+	text-align:center;
+}
+div.choice-button:hover{
+	background-color:#BBBBBB;
+	color:black;
+	cursor:pointer;
+	transition:all .3s ease-in-out;
+}
+div.choice-bar{
+	position:fixed;
+	top:50%;
+	left:0;
+	display:flex;
+	flex-flow:row wrap;
+	justify-content:space-around;
+}
+
+a {
+	font-weight:bold;
+	color:inherit;
+}
+.bold { font-weight:bold; }
+</style>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src='js/flowers.js'></script><script> //Script containing my flower illustrations
+
+// Animation vars
+var browsers = ['ms', 'moz', 'webkit', 'o'];
+for(var j = 0; j < browsers.length && !window.requestAnimationFrame; ++j) {
+	window.requestAnimationFrame = window[browsers[j]+'RequestAnimationFrame'];
+	window.cancelAnimationFrame = window[browsers[j]+'CancelAnimationFrame'] || window[browsers[j]+'CancelRequestAnimationFrame'];
+}
+var reqAnim = window.requestAnimationFrame,
+	endAnim = window.cancelAnimationFrame;
+
+//Canvas + cycling vars
+var flowers = [draw1,draw2,draw3,draw4,draw5,draw6,draw7,draw8,draw9]; //These are the names of the functions to draw the 9 flower weather drawings (see flowers.js)
+
+var i 	= 0;
+var cvs, ctx;
+
+//Easing functions from http://gsgd.co.uk/sandbox/jquery/easing, © 2008 George McGinley Smith
+$.extend(jQuery.easing, { 
+	easeOutBounce: function (x, t, b, c, d) {
+		if ((t/=d) < (1/2.75)) {
+			return c*(7.5625*t*t) + b;
+		} else if (t < (2/2.75)) {
+			return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
+		} else if (t < (2.5/2.75)) {
+			return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
+		} else {
+			return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
+		}
+	},
+	easeInBounce: function (x, t, b, c, d) {
+		return c - jQuery.easing.easeOutBounce (x, d-t, 0, c, d) + b;
+	},
+	easeInOutBounce: function (x, t, b, c, d) {
+		if (t < d/2) return jQuery.easing.easeInBounce (x, t*2, 0, c, d) * .5 + b;
+		return jQuery.easing.easeOutBounce (x, t*2-d, 0, c, d) * .5 + c*.5 + b;
+	}	
+});
+
+$(document).ready(function(){
+	cvs = document.getElementById("cvs");
+	$('#cvsAndPad,#intro2').hide();
+	
+	ctx = cvs.getContext("2d");
+	window.addEventListener('resize', resize, false);
+	resize(cvs);
+	
+	$('[id^=choice]').click(function() {
+		var mainQ = $('.choice-bar, #intro1').fadeOut(300);
+		$('#cvsAndPad').delay(1000).fadeIn(15000, 'easeInOutBounce'); //DROP fadeIn HERE LOWER FOR TESTING PURPOSES
+		i=$(this).index(); // this is the ith id containing choice
+		$('#intro2').delay(400).fadeIn(500).delay(3000).fadeOut(1000);
+		draw();
+		reaction();
+	});
+});
+
+//Dynamically resizes canvas on window resize. ***NOTE*** Still needs tweaking; I want to edit this to fill in gaps on the top and bottom by maintaining the canvas size by drawing more sky/ground, using bezier curves and rects with:
+// ctx.fillStyle = 'black' // or ctx.fillStyle = 'rgb(209, 210, 212)' for snow, 
+
+function resize() {
+	
+	var cvsRatio 	= cvs.height / cvs.width;
+	var	windowRatio = window.innerHeight / window.innerWidth;
+	var w,
+		h;
+	if (windowRatio < cvsRatio) {
+		h = window.innerHeight;
+		w = h / cvsRatio;
+	} else {
+		w = window.innerWidth;
+		h = w * cvsRatio;
+	}
+	
+	cvs.style.width	 = w + 'px';
+	cvs.style.height = h + 'px';
+	//with jQ:	$('#cvs').css({'width': w, 'height': h});
+	
+	//Resize pad for very wide windows
+	$('#bottomPad').css('width', cvs.scrollWidth);
+};
+
+function cycle() {
+	$('#bottomPad').empty();
+	i++;
+	if(i == flowers.length) i=0;	
+	draw();
+	reaction();
+};
+
+function draw() {
+	ctx.clearRect(0,0,cvs.width,cvs.height);
+	flowers[i](ctx);
+	if (i == 5 || i == 6)
+		$('#bottomPad').css({'background-color':'rgb(209, 210, 212)','color':'rgb(0,0,0)'});
+	else 
+		$('#bottomPad').css({'background-color':'rgb(0,0,0)', 'color': 'rgb(255,255,255)'});
+};
+
+function reaction() {
+	var htmlString 	= '<p>';
+	var reactions 	= [
+/*1*/	"Nice! You decide that it's time to hit the links &ndash; that is, the frisbee golf links. Through hard work and unwavering dedication, you become a frisbee golf champion and role model to millions of &quot;tired&quot;-looking college students.",
+/*2*/	"&quot;Meh.&quot; You are so apathetic that you decide to do absolutely nothing until you see some real sun. Soon after you fall into a deep metitative trance, the cord holding up your  dollar store blinds snaps, covering up your window completely. You sink into true hibernation and your metabolism slows to a crawl. Longevity researchers flock rom all over the world to examine you and your story becomes the best known case study in medical history, but your house remains undisturbed for generations. About 1000 years later, a meteorite punches through your window, letting in a sharp beam of sunlight. You are unable to really participate in this new transhuman world, but you always have visitors interested in hearing about the ancient past. Eventually, a cartoon is made to celebrate your storied life.",
+/*3*/	"You return to bed and wait for the sky to clear, but it never does. Global warming has triggered the runaway greenhouse effect. The oceans evaporate and Earth <a target='_blank' href='http://en.wikipedia.org/wiki/Runaway_greenhouse_effect#Venus'>becomes a new Venus</a>, ending all life. <br/><span class='bold'>You are dead.</span>",
+/*4*/	"You rip your clothes off and run outside to play in the rain. A young mother is walking by with her oversensitive child, who is traumatized for life by the sign of your naughty bits dangling in the rain. You are forced to give a special greeting to your new neighbors every time you move for the rest of your life. You spend your final days living <a target='blank' href='http://en.wikipedia.org/wiki/Julia_Tuttle_Causeway_sex_offender_colony'>under a bridge in Florida</a>. <br/><span class='bold'>You are dead.</span>",
+/*5*/	"&quot;FLEUR!&quot; The final thing you see is a massive lightning bolt striking your beloved pet and best friend. The lightning arcs to the metal window frame, sending millions of volts of electricity coursing through your body and leaving you burned, blinded and unconscious. When you come to, you find that in place of sight, you now have <span class='bold'>foresight</span> &ndash; the uncanny ability to predict the obvious. You make millions of people happy by telling them what they already should know and live out the rest of your days in the lap of luxury.",
+/*6*/	"<span class='bold'>It's snowing!</span> You dance outside and frolic in the snow, making snow angels and catching snowflakes on your tongue. Unfortunately, the EvilCorp manufacturing facility down the street just came online manufacturing pure evil and releasing huge amounts of pollution into the air, producing <a target='_blank' href='http://chemwiki.ucdavis.edu/Physical_Chemistry/Acids_and_Bases/Case_Studies/Acid_Rain/Acid_Snow'>acid snow</a> with a pH near 1. Before you know what's happening, you recieve lethal skin damage. <br/><span class='bold'>You are dead.</span>",
+/*7*/	"You're a Chicagoan, so it seems perfectly reasonable to you to venture out in a t-shirt and shorts to shovel. While trying to put a final cap on a massive mound of shoveled snow, you rip a muscle in your hamstrings and collapse to the ground. You are soon buried by your own snowpile when a strong gust of wind catches it, which muffles your faint cries for help. You remain missing until April when the snow finally melts. <br/><span class='bold'>You are dead.</span>",
+/*8*/	"The wind continues to pick up until the plywood walls of your shoddy house are flattened. If only you had heeded the official wind advisory! Convinced the elements of nature have it in for you, you never again live in an above-ground structure. You eventually save up enough to build your own underground home and become known to all the neighborhood children as &quot;the hobbit&quot;.",
+/*9*/	"The end of the world has come, and it's adorable. You open the window and let yourself be swept away by a flood of adorable cartoon animals. The atmosphere catches fire, suffocating all life on Earth, but you are sporting an ear-to-ear grin as your life comes to an end. <br/><span class='bold'>You are dead.</span>"
+	];
+	
+	htmlString += reactions[i];
+	
+	htmlString += "</p><p>Is that really how you wanted your day to go? <a href='javascript:restartDay()'>Go back to bed and try again.</a>";
+	
+	$('#bottomPad').html(htmlString);
+}
+
+function restartDay() {
+	$('#cvsAndPad').fadeOut(300);
+	$('#intro1, #bar').delay(400).fadeIn(400);
+}
+
+
+</script>
+</head>
+ 
+<body>
+<div id='container'>
+<div id='intro'>
+	<div id='intro1'> 
+		<p>You roll out of bed and dash to the nearest window to check on Fleur, your beloved pet flower.</p>
+		<p>What's the weather like?</p>
+	</div>
+	<div id='intro2'>
+		<p>You draw the shades to get your first glimpses of Fleur.</p> 
+		<p>You eyes struggle to adjust to the daylight, revealing: </p>
+	</div>
+	
+	<div class='choice-bar' id='bar'>
+		<div class='choice-button' id='choice1'>Sunny!</div>
+		<div class='choice-button' id='choice2'>Partly cloudy.</div>
+		<div class='choice-button' id='choice3'>Overcast.</div>
+		<div class='choice-button' id='choice4'>Raining.</div>
+		<div class='choice-button' id='choice5'>Thunderstorming!</div>
+		<div class='choice-button' id='choice6'>Snowing.</div>
+		<div class='choice-button' id='choice7'>Snowstorming!</div>
+		<div class='choice-button' id='choice8'>Windy.</div>
+		<div class='choice-button' id='choice9'>Raining cats &amp; dogs!</div>
+	</div>
+</div>
+
+<div id='cvsAndPad'>
+	<div id ='cvs-div' onClick='cycle();'>
+		<canvas id='cvs' width='1920' height='1080'>
+	</canvas>
+	</div>
+	<div id='bottomPad'>&nbsp;</div>
+</div>
+
+</div>
+</body>
+</html>

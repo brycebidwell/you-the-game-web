@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang = 'en-us'>
+<head>
+<meta charset="utf-8">
+<title>You: The Game</title>
+<!-- Author: Bryce Bidwell. (C) 2015 -->
+<style>
+*,:before, :after {box-sizing:border-box;}
+
+body {
+	font-family:"Segoe UI", Tahoma, Arial, sans-serif;
+	background-color:#EEEEEE;
+	margin:0; padding:0; width:100%; height:100%;
+	overflow:hidden;
+	display:block;
+}
+a {
+	font-weight:inherit;
+	text-decoration:none;
+	color:#FF6400;
+}
+a:hover {
+	cursor:pointer;
+}
+a b { color: #990066;
+	font-weight:inherit;}
+a:hover b { color: #CC99CC; 
+	font-weight:inherit;}
+
+div#container {
+	width:85%;
+	height:96.5%;
+	margin:0 auto;
+	background-color:#rgba(56,47,50,.3);
+	display:block;
+	position: fixed;
+	left:10%; top:3%;
+}
+div.choice-button {
+	display:block;
+	color:white;
+	background-color:#333333;
+	font-size:large;
+	font-weight:bold;
+	padding:1em;
+	border-radius:4em;
+	border-bottom-left-radius:.3em;
+	border-top-right-radius:.3em;
+	border:inset rgba(204,204,204,.7);
+	margin:0 0;
+	margin-bottom:1.5em;
+	width:20em;
+	text-align:center;
+}
+
+div.choice-button:hover{
+	background-color:#BBBBBB;
+	color:black;
+	cursor:pointer;
+	transition:all .3s ease-in-out;
+}
+div.choice-bar {
+	display:flex;
+	flex-flow:row wrap;
+	align-items:center;
+	justify-content:space-around;
+	align-content:center;
+	width:100%;
+}
+
+div#flexo {
+	display:flex;
+	flex-flow:column nowrap;
+	justify-content:space-between;
+	align-content:center;
+	width:100%;
+	height:100%;
+}
+
+div#maintitle {
+	font-size:80px;
+	margin:0 auto;
+	margin-top:20px;
+	text-align:center;
+	font-weight:bold;
+	width:115%;
+	position: relative; left:-11.5%;
+	font-variant:small-caps;
+    border: 5px solid transparent;
+	}
+
+#maintitle:after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    bottom: -5px;
+    left: 0px;
+    width: 100%;
+	height: 5px;
+
+
+
+	background-image: -moz-linear-gradient(left,  rgba(0,0,0,0) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+	background-image: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(0,0,0,0.1)), color-stop(50%,rgba(0,0,0,1)), color-stop(100%,rgba(0,0,0,0)));
+	background-image: -webkit-linear-gradient(left,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 50%,rgba(0,0,0,0) 100%);
+	background-image: -o-linear-gradient(left,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 50%,rgba(0,0,0,0) 100%);
+	background-image: linear-gradient(to right,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 50%,rgba(0,0,0,0) 100%);
+}
+div#introduction {
+	font-size:large;
+	width:100%;
+	margin:0 auto;
+	text-align:center;
+}
+
+div#copyright {
+	font-size:small;
+	text-align:center;
+	margin:0 auto;
+	color:#555555;
+}
+
+.emphasis {font-size:x-large; font-weight:bold;}
+</style>
+
+</head>
+
+<body>
+<div id='container'>
+<div id='flexo'>
+	<div id='maintitle' class='one'>
+		You: The Game
+	</div>
+	
+	<div id='introduction'>
+		<p>You wake up from an uncomfortably realistic dream with thoughts racing through your mind. Something feels a bit off.</p>
+		<p class='emphasis'>How would you like to start off the day?</p>
+	</div>
+	
+	<div class='choice-bar'>
+		<a href='qyl-ts.html'><div class='choice-button'>Look around the room.</div></a>
+		<a href='arrows.html'><div class='choice-button'>Go back to sleep.</div></a>
+		<a href='flowers.html'><div class='choice-button'>Get up to check the weather.</div></a>
+	</div> 
+
+	<div id='copyright'>
+		&copy; 2015 <a href='mailto:bidwbryc@my.dom.edu'>Bryce Bidwell</a> - a labor of love
+	</div> 
+
+
+</div>
+
+</div>
+
+</body>
+</html>
