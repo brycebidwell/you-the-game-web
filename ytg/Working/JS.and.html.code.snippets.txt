@@ -1,6 +1,6 @@
 // ctx.clearRect(0,0,widthOfImage,heightOfWindow - heightOfImage) //for adding sky
 
-//NOTE: cvs.scrollHeight is the actual r endered height, cvs.height is the nominal height	
+//NOTE: cvs.scrollHeight is the actual rendered height, cvs.height is the nominal height	
 	
 	var ch = cvs.scrollHeight;
 	var cw = cvs.scrollWidth;
